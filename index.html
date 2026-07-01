@@ -15,7 +15,7 @@ h1 {
   text-align: center;
   margin-bottom: 20px;
 }
-h2 {
+h2,h3 {
   text-align: center;
   margin-bottom: 50px;
 }
@@ -40,6 +40,9 @@ h2 {
 a{
     color: black;
     text-decoration: none;
+}
+p{
+    text-align: center;
 }
 </style>
 
@@ -70,8 +73,37 @@ a{
 <a href="https://www.youtube.com/playlist?list=PLexY8vU0hsJ-qOMFHmeEynmGAT_xFIrUz" target="_blank" rel="noopener" class="botton2">
 <b>小学６年生 新演習上</b>
 </a>
-<br><br><br><br><br><br><br><br><br><br>
-<h2>comming soon...</h2>
-<p>ページ作成者</p>田中 颯<a href="oresi.html">翔</a>
+<br><br><br>
+<h2>私の勝手なInformation</h2>
+<h3 id="message"></h3>
+ページ作成者<br>
+田中 颯<a href="oresi.html">翔</a>
+<script>
+  // 表示したい文章を配列に入れる
+  const messages = [
+    "「11²～15²は暗記しておけ」計算速度が倍になるぞ",
+    "頑張る秘訣は、頑張りすぎないことである。だがやるときはやれ。",
+    "やることをやったらなんだってしても良い。これが私の方針だ。",
+    "努力は必ずしも結果には出ない。だが気づかぬ所で役に立つ。",
+    "時間と挨拶。君はどちらを大事に考えるかな？私は両方だ。",
+    "このページのどこかに隠しページの入り口が存在する…かもしれない。",
+    "君は命令に従うロボットではない。発言し行動できる人間だ",
+    "勉強が嫌いかい？過去の私もそうだった。その癖は簡単には治らない。",
+    "どれだけ生徒時代が良いものだったか後々気付く。",
+    "トライ＆エラーを心掛けよ。ミスすることを恐れるな。ミスを恐れる歳ではない。",
+    "大人たちは言う。勉強しろと。大人は勉強の重要性を知っているからだ。これは大人にならないと分からない。",
+    "私は2018年に入塾した。今までに少なくとも机の配置が7回以上は変わっている。",
+    "昔の阿部塾にはアルクスはなかった。高校生になったらここを家にすると良い。",
+    "点数が上がらなくて悩んでいる君へ、君は優秀だよ。悩むことすらできないバカがこの世には存在する。",
+    "プログラミングは面白い。現にこのページもプログラミングで作られている。",
+    "阿部先生がさよならエレジーを歌っている動画がYouTubeに載っている。あれは傑作だね。おまけに著作権に引っかかっている。"
+  ];
+
+  // ランダムな番号を取得
+  const randomIndex = Math.floor(Math.random() * messages.length);
+
+  // 文章を表示
+  document.getElementById("message").textContent = messages[randomIndex];
+</script>
 </body>
 </html>
