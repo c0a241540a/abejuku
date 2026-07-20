@@ -41,13 +41,22 @@ h2,h3 {
     border: 1px solid black;
 }
 .botton2{
-    margin-left: 135px;
+    margin-left: 100px;
     padding: 20px 40px;
     background-color: orange;
     color: white;
     text-decoration: none;
     border-radius: 30px;
     border: 1px solid black;
+}
+.botton3{
+    margin-left: 100px;
+    padding: 20px 40px;
+    background-color: rgb(0, 179, 110);
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    border-radius: 30px;
+    border: 5px solid rgb(0, 0, 0);
 }
 a{
     color: black;
@@ -68,12 +77,16 @@ p{
 <br><br><br>
 <a href="https://www.youtube.com/playlist?list=PLexY8vU0hsJ_toV1jg32b-jl_ENQb4I18" target="_blank" rel="noopener" class="botton">
 <b>中学２年生 フォレスタ数学</b>
-</a>ボタンを押すとリストに飛ぶよ☆
+</a>ボタンを押すとそれぞれのリストに飛ぶよ☆
 <br><br><br>
 <a href="https://www.youtube.com/playlist?list=PLexY8vU0hsJ_kBUxyWlRgegF_tl726YgS" target="_blank" rel="noopener" class="botton">
 <b>中学３年生 フォレスタ数学</b>
-</a>一部の動画には字幕が付いてるよ☆
-<br><br><br>
+</a>一部の動画には字幕が付いている場合があるよ☆
+<br><br><br><br>
+<a href="https://www.youtube.com/playlist?list=PLC_87rSRVz2I" target="_blank" rel="noopener" class="botton3">
+<b>限定！数学夏期講習！必勝！</b>
+</a>夏の数学集中講座の映像です。皆さん頑張ろう！
+<br><br><br><br>
 <a href="https://www.youtube.com/playlist?list=PLexY8vU0hsJ-t3dAR6ubyiBZIavREKUtc" target="_blank" rel="noopener" class="botton2">
 <b>小学５年生 新演習上</b>
 </a>
@@ -86,24 +99,31 @@ p{
 <b>小学６年生 新演習上</b>
 </a>
 <br><br><br>
-<h2>私の勝手なInformation</h2>
+<h2>My Information</h2>
 <h3 id="message"></h3>
 <br><br><br>
 <button onclick="showMessage()" class="botton">この世で究極レベルの神ゲーをプレイする</button>
 このボタンを押せば最強の神ゲーを知れるぞ☆
 <br><br><br><br>
-このページは田中先生が独断で勝手に許可も取らず暇つぶしで完全に自由に作ったページです.チートコードはF12もしくはF12＋fn
-    
-<br><br>
+
 <button class="reload-btn" onclick="location.reload()">
     🔄 リロード
 </button>
 <br><br>
 ページ作成者<br>
-田中 颯翔<a href="oresi.html">.</a>
+田中 颯翔<a href="#" onclick="checkPassword()">.</a>
 <script>
   function showMessage() {
-    alert("この世で究極レベルの神ゲー、それは勉強だよ♡ 早く映像を選べ");
+    alert("この世で究極レベルの神ゲー、それは勉強だよ♡ 早く映像を選ぶんだ。");
+}
+  function checkPassword() {
+    const password = prompt("情報セキュリティシステム発動 コードを入力せよ.誤ったコードを入力するとこのページは表示不可となる.");
+
+    if (password === "abejuku19") {
+        window.location.href = "oresi.html";
+    } else if (password !== null) {
+        alert("コードが違います．    ロックしました   :(");
+    }
 }
   // 表示したい文章を配列に入れる
   const messages = [
@@ -130,7 +150,7 @@ p{
     "チャンネル登録してね☆",
     "まさかこのメッセージのためにリセマラしてないでしょうね？",
     "私が変な人間であることは、私の授業を受ければ何となくわかるだろう。",
-    "阿部先生は昔、めっちゃ太っていた。今は徐々に瘦せている。ダイエット頑張れ。",
+    "阿部先生は昔、めっちゃ太っていた。今は徐々に瘦せている。ダイエット頑張れ",
     "阿部塾模試というものがある。合計5回あるが、みんな覚悟して挑んでほしい。",
     "√196を整数にせよ。これが3秒でできない中学三年生は気をつけよ。",
     "関数や図形の問題で分からなくなったらとりあえず図を書け。",
