@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>クイズゲーム</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family: "Yu Gothic", "Meiryo", sans-serif;
+
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+
+            color: white;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container {
+            width: 700px;
+            max-width: 90%;
+
+            padding: 40px;
+
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+
+            text-align: center;
+        }
+
+        h1 {
+            color: #ffd700;
+            font-size: 40px;
+            margin-top: 0;
+        }
+
+        #question-number {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        #question {
+            font-size: 25px;
+            margin-bottom: 30px;
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .answer-button {
+            padding: 20px;
+
+            border: none;
+            border-radius: 15px;
+
+            background: rgba(255, 255, 255, 0.9);
+            color: #222;
+
+            font-size: 18px;
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        .answer-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #result {
+            font-size: 22px;
+            margin: 25px 0;
+            font-weight: bold;
+        }
+
+        #next-button {
+            display: none;
+
+            padding: 15px 40px;
+
+            border: none;
+            border-radius: 30px;
+
+            background: #ffd700;
+            color: #222;
+
+            font-size: 18px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        #next-button:hover {
+            transform: scale(1.05);
+        }
+
+        #score {
+            font-size: 30px;
+            color: #ffd700;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="quiz-container">
+
+        <h1>試練の問（間違えれば追放）</h1>
+
+        <div id="quiz">
+            <div id="question-number"></div>
+
+            <div id="question"></div>
+
+            <div class="answers">
+                <button class="answer-button" onclick="answer(0)"></button>
+                <button class="answer-button" onclick="answer(1)"></button>
+                <button class="answer-button" onclick="answer(2)"></button>
+                <button class="answer-button" onclick="answer(3)"></button>
+            </div>
+
+            <div id="result"></div>
+
+            <button id="next-button" onclick="nextQuestion()">
+                次の問題
+            </button>
+        </div>
+
+        <div id="finish" style="display:none;">
+            <h2>クイズ終了！</h2>
+            <div id="score"></div>
+
+            <br>
+
+            <button id="next-button"
+                    style="display:inline-block;"
+                    onclick="location.reload()">
+                もう一度遊ぶ
+            </button>
+        </div>
+
+    </div>
+
+
+    <script>
+
+        // ==========================
+        // 問題データ
+        // ==========================
+
+        const questions = [
+
+            {
+                question: "このページの作成者は誰？",
+
+                answers: [
+                    "田中・隼人",
+                    "田中・勇人",
+                    "田中・颯斗",
+                    "田中・颯翔"
+                ],
+
+                correct: 3
+            },
+
+            {
+                question: "私が中学生の頃の阿部塾テスト対策のスケジュールは？",
+
+                answers: [
+                    "14:30~21:30 (1コマ25分)",
+                    "13:30~21:30 (1コマ50分)",
+                    "14:30~21:30 (1コマ50分)",
+                    "14:30~20:40 (1コマ25分)"
+                ],
+
+                correct: 2
+            },
+
+            {
+                question: "私が中学三年生の頃、阿部塾は今よりももう一つ部屋を多く持っていました。それはどこ？",
+
+                answers: [
+                    "今サンカフェがある所",
+                    "今コインランドリーがある所",
+                    "もう建物がぶっ壊された",
+                    "そんなものはなかった。それは幻想だ"
+                ],
+
+                correct: 1
+            },
+
+            {
+                question: "私が最も好きアニメはどれ？",
+
+                answers: [
+                    "機動戦士ガンダムユニコーン",
+                    "機動戦士ガンダム・水星の魔女",
+                    "機動戦士ガンダムSEED",
+                    "魔法少女まどか☆マギカ"
+                ],
+
+                correct: 3
+            },
+
+            {
+                question: "私のネームプレートに付いているキラキラしたボールペンは誰のモチーフのペン？",
+
+                answers: [
+                    "さやかちゃん",
+                    "まどかちゃん",
+                    "マミさん",
+                    "マルゲリータ"
+                ],
+
+                correct: 0
+            },
+
+            {
+                question: "阿部塾YouTubeチャンネルの登録者数は、現在2380人ですが、私が動画編集を担当し始めた頃の人数は？",
+
+                answers: [
+                    "0人",
+                    "70人",
+                    "400人",
+                    "1000人"
+                ],
+
+                correct: 1
+            },
+
+            {
+                question: "三平方の定理の公式は？",
+
+                answers: [
+                    "a+b=c",
+                    "a-b=c",
+                    "a²+b²=c²",
+                    "x³+y³=z³"
+                ],
+
+                correct: 2
+            },
+
+            {
+                question: "フェルマーの最終定理とはなに？",
+
+                answers: [
+                    "この世界の地図は4色で色分けできる定理",
+                    "素数を導き出すための定理",
+                    "全ての三角形の辺は一定の比の計算で出せる定理",
+                    "x^n+y^n=z^nにおいて、n=3以上の場合これが成り立つ時はないことを表す定理"
+                ],
+
+                correct: 3
+            },
+
+            {
+                question: "自動車は必ず信号に従わなければならない。",
+
+                answers: [
+                    "○",
+                    "x",
+                    "",
+                    ""
+                ],
+
+                correct: 1
+            },
+
+            {
+                question: "自動車における徐行とは時速何キロのことか",
+
+                answers: [
+                    "5km",
+                    "10km",
+                    "20km",
+                    "30km"
+                ],
+
+                correct: 1
+            },
+
+            {
+                question: "就職活動における面接前のノックの回数は何回？",
+
+                answers: [
+                    "1",
+                    "2",
+                    "3",
+                    "ノックはしない"
+                ],
+
+                correct: 2
+            },
+
+            {
+                question: "私の部屋にあるまどかちゃんのフィギュアの数は？",
+
+                answers: [
+                    "1",
+                    "2",
+                    "3",
+                    "8"
+                ],
+
+                correct: 3
+            },
+
+            {
+                question: "私はイケメンですか？",
+
+                answers: [
+                    "当然",
+                    "はい。もちろん",
+                    "田中先生万歳",
+                    "は？？？"
+                ],
+
+                correct: 3
+            },
+
+            {
+                question: "P FEVER機動戦士ガンダムユニコーン初代において、初当たり時3000FEVERが発動する割合は？",
+
+                answers: [
+                    "5%",
+                    "10%",
+                    "20%",
+                    "21%"
+                ],
+
+                correct: 2
+            },
+
+            {
+                question: "私は今まで何人彼女ができたでしょうか",
+
+                answers: [
+                    "1",
+                    "2",
+                    "3",
+                    "永遠のゼロ"
+                ],
+
+                correct: 3
+            }
+
+        ];
+
+
+        // ==========================
+        // 変数
+        // ==========================
+
+        let currentQuestion = 0;
+        let score = 0;
+
+
+        // ==========================
+        // 問題を表示
+        // ==========================
+
+        function showQuestion() {
+
+            const question = questions[currentQuestion];
+
+            document.getElementById("question-number").textContent =
+                "問題 " + (currentQuestion + 1) +
+                " / " + questions.length;
+
+            document.getElementById("question").textContent =
+                question.question;
+
+
+            const buttons =
+                document.querySelectorAll(".answer-button");
+
+
+            buttons.forEach((button, index) => {
+
+                button.textContent =
+                    question.answers[index];
+
+                button.disabled = false;
+
+            });
+
+
+            document.getElementById("result").textContent = "";
+
+            document.getElementById("next-button").style.display =
+                "none";
+        }
+
+
+        // ==========================
+        // 回答
+        // ==========================
+
+        function answer(selected) {
+
+            const question = questions[currentQuestion];
+
+            const buttons =
+                document.querySelectorAll(".answer-button");
+
+
+            // 全ボタンを無効化
+            buttons.forEach(button => {
+                button.disabled = true;
+            });
+
+
+            if (selected === question.correct) {
+
+                document.getElementById("result").textContent =
+                    "⭕ 正解！";
+
+                score++;
+
+            } else {
+
+                document.getElementById("result").textContent =
+                    "失格です。ご退場ください。";
+
+                setTimeout(function() {
+                    window.location.href = "abejuku.html";
+                }, 1000);
+            }
+
+
+            document.getElementById("next-button").style.display =
+                "inline-block";
+        }
+
+
+        // ==========================
+        // 次の問題
+        // ==========================
+
+        function nextQuestion() {
+
+            currentQuestion++;
+
+
+            if (currentQuestion < questions.length) {
+
+                showQuestion();
+
+            } else {
+
+                showResult();
+
+            }
+        }
+
+
+        // ==========================
+        // 結果表示
+        // ==========================
+
+        function showResult() {
+
+            document.getElementById("quiz").style.display =
+                "none";
+
+            document.getElementById("finish").style.display =
+                "block";
+
+
+            document.getElementById("score").textContent =
+                score + " / " + questions.length + " 問正解！";
+        }
+
+
+        // 最初の問題を表示
+        showQuestion();
+
+    </script>
+
+</body>
+
+</html>
