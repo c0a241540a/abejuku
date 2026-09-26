@@ -19,6 +19,8 @@
     --muted: #8c8c98;
     --gold: #e9c56c;
     --green: #46e08a;
+    --crimson: #b0002d;
+    --black-red: #180107;
 }
 
 * { box-sizing: border-box; }
@@ -315,6 +317,43 @@ body::before {
     background: rgba(226,29,60,.05);
 }
 
+.continue-banner {
+    display: none;
+    margin: 8px auto 8px;
+    width: min(92%, 620px);
+    padding: 14px 18px 12px;
+    border: 2px solid rgba(255,65,96,.75);
+    background: linear-gradient(180deg, rgba(130,0,24,.62), rgba(20,0,6,.72));
+    box-shadow: 0 0 24px rgba(226,29,60,.28), inset 0 0 20px rgba(255,255,255,.03);
+    text-align: center;
+    transform: skewX(-7deg);
+}
+.continue-banner.show {
+    display: block;
+    animation: continuePop .35s ease-out;
+}
+.continue-main {
+    font-family: Orbitron, 'Noto Sans JP', sans-serif;
+    font-size: clamp(34px, 7vw, 78px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: .16em;
+    color: #fff;
+    text-shadow: 0 0 16px rgba(255,65,96,.9);
+    transform: skewX(7deg);
+}
+.continue-sub {
+    margin-top: 8px;
+    color: #ff7183;
+    font-size: 12px;
+    letter-spacing: .32em;
+    transform: skewX(7deg);
+}
+@keyframes continuePop {
+    from { opacity: 0; transform: skewX(-7deg) scale(.82); }
+    to { opacity: 1; transform: skewX(-7deg) scale(1); }
+}
+
 .prompt {
     margin-top: 18px;
     min-height: 34px;
@@ -358,6 +397,17 @@ button:hover { transform: translateY(-1px); border-color: #70707a; }
 button:active { transform: translateY(1px); }
 button.primary { border-color: rgba(226,29,60,.7); box-shadow: 0 0 14px rgba(226,29,60,.17); }
 button.danger { border-color: #5e2631; }
+button.force {
+    grid-column: 1 / -1;
+    color: #fff;
+    border-color: #ff234a;
+    background: linear-gradient(180deg, #7e1028, #26040b);
+    box-shadow: 0 0 18px rgba(255,35,74,.25), inset 0 0 12px rgba(255,35,74,.08);
+}
+button.force:hover {
+    border-color: #ff5472;
+    box-shadow: 0 0 30px rgba(255,35,74,.42);
+}
 button.decide {
     grid-column: 1 / -1;
     display: none;
@@ -457,6 +507,10 @@ button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
                     <div class="inner-content">
                         <div class="eyebrow">ONE-EYED KING // SIMULATION</div>
                         <div id="message" class="message">起動中...</div>
+                        <div id="continueBanner" class="continue-banner">
+                            <div id="continueMain" class="continue-main">継続</div>
+                            <div id="continueSub" class="continue-sub">CONTINUE</div>
+                        </div>
                         <div id="reels" class="reels">
                             <div class="reel">-</div><div class="reel">-</div><div class="reel">-</div>
                         </div>
@@ -476,6 +530,10 @@ button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
             <div class="stat-box">
                 <div class="stat-label">RUSH回数</div>
                 <div id="rushValue" class="stat-value red">0</div>
+            </div>
+            <div class="stat-box rush-remaining-box">
+                <div class="stat-label">RUSH残り回転</div>
+                <div id="rushRemainValue" class="stat-value red">---</div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">獲得出玉</div>
@@ -503,6 +561,7 @@ button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
                 <button id="reserveBtn" class="primary">S　保留投下</button>
                 <button id="historyBtn">L　履歴表示</button>
                 <button id="stopBtn" class="danger">Z　ゲーム終了</button>
+                <button id="forceBtn" class="force">強制役　大当たり</button>
                 <button id="decideBtn" class="decide">決めろ！　[ ENTER ]</button>
             </div>
         </div>
@@ -514,7 +573,7 @@ button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 
         <div class="control-card">
             <div class="ops-title">KEYBOARD // 操作方法</div>
-            <div class="ops"><b>S</b>：保留投下　 <b>L</b>：履歴表示　 <b>Z</b>：終了<br><b>ENTER</b>：演出「決めろ！」の決定</div>
+            <div class="ops"><b>S</b>：保留投下　 <b>L</b>：履歴表示　 <b>Z</b>：終了<br><b>ENTER</b>：演出「決めろ！」の決定　 <b>F</b>：強制役<br><b>強制役</b>：押すと大当たり発動</div>
         </div>
     </section>
 
@@ -537,6 +596,7 @@ let waitingForDecision = false;
 let resolveDecision = null;
 let rushTotal = 0;
 let payoutTotal = 0;
+let rushRemaining = null;
 
 const screen = document.getElementById("screen");
 const message = document.getElementById("message");
@@ -552,11 +612,16 @@ const caValue = document.getElementById("caValue");
 const modeValue = document.getElementById("modeValue");
 const rushValue = document.getElementById("rushValue");
 const payoutValue = document.getElementById("payoutValue");
+const rushRemainValue = document.getElementById("rushRemainValue");
+const continueBanner = document.getElementById("continueBanner");
+const continueMain = document.getElementById("continueMain");
+const continueSub = document.getElementById("continueSub");
 const effectValue = document.getElementById("effectValue");
 const log = document.getElementById("log");
 const reserveBtn = document.getElementById("reserveBtn");
 const historyBtn = document.getElementById("historyBtn");
 const stopBtn = document.getElementById("stopBtn");
+const forceBtn = document.getElementById("forceBtn");
 const decideBtn = document.getElementById("decideBtn");
 
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
@@ -579,6 +644,9 @@ function updateStats() {
     caValue.textContent = lastCA ? "当たり" : (horyulst.length ? "判定済" : "---");
     rushValue.textContent = rushTotal;
     payoutValue.textContent = payoutTotal.toLocaleString();
+    if (rushRemainValue) {
+        rushRemainValue.textContent = rushRemaining === null ? "---" : rushRemaining;
+    }
     renderLamps();
 }
 
@@ -616,7 +684,34 @@ function append(text) {
     prompt.textContent = String(text);
 }
 
+function showContinue(times) {
+    continueMain.textContent = `継続 ×${times}`;
+    continueSub.textContent = `CONTINUE // ${times}`;
+    continueBanner.classList.remove("show");
+    void continueBanner.offsetWidth;
+    continueBanner.classList.add("show");
+    message.textContent = "";
+    reels.forEach(el => el.className = "reel");
+    sigil.textContent = "CONTINUE // CHANCE";
+    prompt.textContent = "継続演出発生";
+    effectValue.textContent = "CONTINUE";
+    screen.classList.remove("flash", "vibrate");
+    void screen.offsetWidth;
+    screen.classList.add(times >= 3 ? "flash" : "vibrate");
+}
+
+function hideContinue() {
+    continueBanner.classList.remove("show");
+}
+
+function addPayout(amount, reason) {
+    payoutTotal += amount;
+    updateStats();
+    addLog(`${reason}：+${amount.toLocaleString()}発`);
+}
+
 function clearOutput() {
+    hideContinue();
     message.textContent = "";
     prompt.textContent = "";
     effectValue.textContent = "---";
@@ -651,6 +746,7 @@ function stopGame() {
     status.textContent = "終了";
     reserveBtn.disabled = true;
     historyBtn.disabled = true;
+    forceBtn.disabled = true;
     stopBtn.disabled = true;
     addLog("ゲーム終了");
 }
@@ -793,6 +889,7 @@ async function aori() {
 async function RUSH() {
     let RUSHatkai = 1;
     let RUSHcount = 130;
+    rushRemaining = RUSHcount;
     rushTotal++;
     setMode("HYPER RUSH", true);
     rushValue.textContent = rushTotal;
@@ -806,6 +903,8 @@ async function RUSH() {
         const R_atari = randomInt(1, 95);
         const R_IVE = randomInt(1, 95);
         RUSHcount -= 1;
+        rushRemaining = RUSHcount;
+        updateStats();
 
         setMode("HYPER RUSH", true);
         show(`残り${RUSHcount}回`, "red", { big: true, sigil: `${RUSHatkai} ROUND`, effectLabel: "RUSH COUNT" });
@@ -818,9 +917,12 @@ async function RUSH() {
             await sleep(500);
             await RUSHensyu();
             if (shouldStop()) return;
+            addPayout(3000, "RUSH中大当たり");
             RUSHatkai += 1;
             addLog(`${RUSHatkai}回目 継続`);
             RUSHcount = 130;
+            rushRemaining = RUSHcount;
+            updateStats();
             await sleep(3000);
         } else if (R_IVE % 30 === 0) {
             await sleep(500);
@@ -830,12 +932,11 @@ async function RUSH() {
         }
 
         if (RUSHcount <= 0) {
-            const payout = 1500 + ((RUSHatkai - 1) * 3000);
-            payoutTotal += payout;
-            payoutValue.textContent = payoutTotal.toLocaleString();
+            rushRemaining = 0;
+            updateStats();
             show(`${RUSHatkai}回`, "gold", { giant: true, sigil: "RUSH RESULT", effect: "flash" });
-            append(`${payout.toLocaleString()} 発`);
-            addLog(`RUSH終了 / ${payout.toLocaleString()}発`);
+            append(`${payoutTotal.toLocaleString()} 発`);
+            addLog(`RUSH終了 / 累計${payoutTotal.toLocaleString()}発`);
             await sleep(5000);
             break;
         }
@@ -903,11 +1004,15 @@ async function playRound() {
             else if (horyulst.length >= 5) await tyuuse(0.1);
 
             if (ivent % 32 === 0) {
-                show("継続×２", "red", { giant: true, effect: "vibrate", sigil: "CONTINUE // 2" });
+                showContinue(2);
+                await sleep(500);
                 await tyuuse(1);
+                hideContinue();
                 if (ivent % 128 === 0) {
-                    show("継続×３", "red", { giant: true, effect: "flash", sigil: "CONTINUE // 3" });
+                    showContinue(3);
+                    await sleep(650);
                     await tyuuse(1);
+                    hideContinue();
                     const enemy = vsive < 40 ? "スクラッパー" : vsive < 70 ? "月山" : vsive < 90 ? "にしき" : "ヤモリ";
                     show(enemy, "red", { big: true, sigil: "BATTLE // TARGET" });
                     await sleep(3000);
@@ -922,10 +1027,14 @@ async function playRound() {
             else if (horyulst.length >= 3 && horyulst.length < 5) await tyuuse(0.3);
             else if (horyulst.length >= 5) await tyuuse(0.1);
 
-            show("継続×２", "red", { giant: true, effect: "vibrate", sigil: "CONTINUE // 2" });
+            showContinue(2);
+            await sleep(500);
             await tyuuse(1);
-            show("継続×３", "red", { giant: true, effect: "flash", sigil: "CONTINUE // 3" });
+            hideContinue();
+            showContinue(3);
+            await sleep(650);
             await tyuuse(1);
+            hideContinue();
 
             const enemy = vsive < 10 ? "スクラッパー" : vsive < 30 ? "月山" : vsive < 60 ? "にしき" : "ヤモリ";
             show(enemy, "red", { big: true, sigil: "BATTLE // TARGET" });
@@ -935,6 +1044,7 @@ async function playRound() {
 
             show("666", "red", { giant: true, reels: "666", effect: "flash", sigil: "JACKPOT DIGIT" });
             await sleep(1000);
+            addPayout(1500, "通常時大当たり");
             await atarien();
             if (shouldStop()) return;
 
@@ -961,6 +1071,40 @@ async function playRound() {
     }
 }
 
+async function forceJackpot() {
+    if (!running || busy || waitingForDecision) return;
+    busy = true;
+    try {
+        setMode("FORCE JACKPOT", true);
+        show("強制役発動", "red", { giant: true, effect: "flash", sigil: "FORCE JACKPOT", prompt: "大当たり確定" });
+        addLog("強制役を発動");
+        await sleep(800);
+        if (horyulst.length > 0) {
+            horyulst.shift();
+            updateStats();
+        }
+        await atarien();
+        if (shouldStop()) return;
+        show("666", "red", { giant: true, reels: "666", effect: "flash", sigil: "FORCED JACKPOT" });
+        await sleep(1000);
+        addPayout(1500, "強制役大当たり");
+        show("HYPER喰種RUSHを獲得するんだ", "red", { big: true, sigil: "RUSH ACQUISITION" });
+        await sleep(2200);
+        const vsive = randomInt(1,100);
+        await rize(vsive);
+        if (shouldStop()) return;
+        if (vsive % 2 === 0) await RUSH();
+        rireki += 1;
+        show("END", "", { big: true, sigil: "FORCE ROUND END" });
+        updateStats();
+        addLog(`強制役終了 / 累計${rireki}回転`);
+        await sleep(400);
+    } finally {
+        busy = false;
+        updateStats();
+    }
+}
+
 async function mainLoop() {
     updateStats();
     show("e東京喰種 疑似システム", "red", { big: true, sigil: "SYSTEM BOOT", prompt: "Sで保留を投下してください", effect: "flash" });
@@ -980,6 +1124,7 @@ async function mainLoop() {
 reserveBtn.addEventListener("click", dropReserve);
 historyBtn.addEventListener("click", showHistory);
 stopBtn.addEventListener("click", stopGame);
+forceBtn.addEventListener("click", forceJackpot);
 decideBtn.addEventListener("click", decide);
 
 document.addEventListener("keydown", event => {
@@ -995,6 +1140,7 @@ document.addEventListener("keydown", event => {
     if (key === "s") dropReserve();
     else if (key === "l") showHistory();
     else if (key === "z") stopGame();
+    else if (key === "f") forceJackpot();
 });
 
 mainLoop();
