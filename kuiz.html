@@ -151,6 +151,8 @@
             <br>
             <a href="#" onclick="checkPassword()">.</a>
             <br>
+            <a href="nikki.html">。</a>
+            <br>
             <button id="next-button"
                     style="display:inline-block;"
                     onclick="location.reload()">
@@ -723,11 +725,10 @@
         }
 
         function checkPassword() {
-            const password = prompt("情報セキュリティシステム発動 コードを入力せよ.誤ったコードを入力するとこの先のページは表示不可となる.");
+            const password = prompt("パスワードを入力しろ");
 
-    if (password === "abejukuyotowani") {
-        alert("真実を受け止める準備はできてますか?");
-        alert("ようこそ。過去を知り未来を掴め    :-)");
+    if (password === "79") {
+        alert("君って、探究深いね。それを勉強に活かしてほしいな。");
         window.location.href = "https://www.abe-juku.net/success_record/tanaka/";
     } 
     else if (password === "abcdef") {
@@ -751,6 +752,9 @@
     else if (password !== null) {
         alert("コードが違います．    ロックしました.明日以降でないと解除不可.ロック解除コードは「自分は授業中に秘密のページを開けようとしてるサボりマンです」  :(");
         alert("このページには何か重要なものが隠されている気がする...");
+        setTimeout(function() {
+                    window.location.href = "abejuku.html";
+                }, 1000);
     }
 }
         // 最初の問題を表示
